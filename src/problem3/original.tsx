@@ -1,6 +1,7 @@
 interface WalletBalance {
   currency: string;
   amount: number;
+  //lack blockchain field
 }
 interface FormattedWalletBalance {
   currency: string;
@@ -10,11 +11,12 @@ interface FormattedWalletBalance {
 
 interface Props extends BoxProps {}
 const WalletPage: React.FC<Props> = (props: Props) => {
-  const { children, ...rest } = props;
+  const { children, ...rest } = props; // children is unused
   const balances = useWalletBalances();
   const prices = usePrices();
 
   const getPriority = (blockchain: any): number => {
+    // blockchain is any
     switch (blockchain) {
       case "Osmosis":
         return 100;
@@ -34,8 +36,9 @@ const WalletPage: React.FC<Props> = (props: Props) => {
   const sortedBalances = useMemo(() => {
     return balances
       .filter((balance: WalletBalance) => {
-        const balancePriority = getPriority(balance.blockchain);
+        const balancePriority = getPriority(balance.blockchain); // blockchain is not in type
         if (lhsPriority > -99) {
+          // lhsPriority is undefined; likely meant balancePriority
           if (balance.amount <= 0) {
             return true;
           }
@@ -51,22 +54,23 @@ const WalletPage: React.FC<Props> = (props: Props) => {
           return 1;
         }
       });
-  }, [balances, prices]);
+  }, [balances, prices]); // price is not used inside
 
   const formattedBalances = sortedBalances.map((balance: WalletBalance) => {
     return {
       ...balance,
-      formatted: balance.amount.toFixed(),
+      formatted: balance.amount.toFixed(), // `toFixed()` with no precision may be misleading
     };
-  });
+  }); // formattedBalances never used
 
   const rows = sortedBalances.map(
     (balance: FormattedWalletBalance, index: number) => {
-      const usdValue = prices[balance.currency] * balance.amount;
+      // sortedBalances should be formattedBalances
+      const usdValue = prices[balance.currency] * balance.amount; // no guard for missing price; can be NaN
       return (
         <WalletRow
-          className={classes.row}
-          key={index}
+          className={classes.row} // classes is not defined in scope
+          key={index} // using index as key may be unstable for reorders
           amount={balance.amount}
           usdValue={usdValue}
           formattedAmount={balance.formatted}
