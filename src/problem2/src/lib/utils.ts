@@ -9,9 +9,9 @@ export function formatAddress(address: string) {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }
 
-export function formatCurrency(amount: number, decimals: number = 2) {
-  return amount.toLocaleString(undefined, {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  });
+export function formatCurrency(amount: number) {
+  return new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 6,
+  }).format(amount);
 }
