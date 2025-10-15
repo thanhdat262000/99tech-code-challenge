@@ -40,6 +40,7 @@ const WalletPage: React.FC<Props> = (props: Props) => {
         if (lhsPriority > -99) {
           // lhsPriority is undefined; likely meant balancePriority
           if (balance.amount <= 0) {
+            // negative amounts should be filtered out
             return true;
           }
         }
