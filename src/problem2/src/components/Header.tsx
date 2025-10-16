@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
-import { BalancesDrawer } from "@/components/Swap/BalancesDrawer";
+import { BalancesDrawer } from "@/components/Wallet/BalancesDrawer";
 import { formatAddress } from "@/lib/utils";
 
 export function Header() {

@@ -142,8 +142,7 @@ export function Swap() {
     );
   };
 
-  const exceedsBalance =
-    !!fromBalance && Number(amountIn || 0) > fromBalance.amount;
+  const exceedsBalance = Number(amountIn || 0) > (fromBalance?.amount || 0);
 
   return (
     <div className="mx-auto w-full max-w-[480px] p-4">

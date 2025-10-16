@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAccount } from "wagmi";
 
 export type FixedBalance = {
   symbol: string;
@@ -35,9 +36,17 @@ function writeBalances(balances: FixedBalance[]) {
 }
 
 export function useBalances() {
+  const { isConnected } = useAccount();
+
   return useQuery<FixedBalance[]>({
     queryKey: ["balances"],
-    queryFn: async () => readBalances(),
+    queryFn: async () => {
+      if (!isConnected) {
+        return [];
+      }
+      return readBalances();
+    },
+    enabled: isConnected,
   });
 }
 
@@ -51,7 +60,12 @@ type UpdateArgs = {
 export function useUpdateBalances() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ fromSymbol, toSymbol, amountIn, amountOut }: UpdateArgs) => {
+    mutationFn: async ({
+      fromSymbol,
+      toSymbol,
+      amountIn,
+      amountOut,
+    }: UpdateArgs) => {
       // simulate network delay for realistic UX
       await new Promise((resolve) => setTimeout(resolve, 1500));
       const inAmount = Number(amountIn) || 0;
