@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useTokens } from "@/hooks/useTokens";
-import { formatCurrency } from "@/lib/utils";
+import { formatNumber } from "@/lib/utils";
 
 export type SwapSettings = {
   slippageBps: number; // basis points
@@ -8,8 +8,7 @@ export type SwapSettings = {
 };
 
 export function useSwap() {
-
-  const { data: tokens} = useTokens();
+  const { data: tokens } = useTokens();
   const [from, setFrom] = useState<string>("ETH");
   const [to, setTo] = useState<string>("USDC");
   const [amountIn, setAmountIn] = useState<string>("");
@@ -19,12 +18,14 @@ export function useSwap() {
     priceImpactLimitPct: 5,
   });
 
-  
   const fromPrice = useMemo(() => {
-    return tokens?.find((t) => t.currency  === from.toUpperCase())?.price || 0;
+    return tokens?.find((t) => t.currency === from.toUpperCase())?.price || 0;
   }, [tokens, from]);
   const toPrice = useMemo(() => {
-    return tokens?.find((t) => t.currency.toUpperCase() === to.toUpperCase())?.price || 0;
+    return (
+      tokens?.find((t) => t.currency.toUpperCase() === to.toUpperCase())
+        ?.price || 0
+    );
   }, [tokens, to]);
 
   const positiveNumberRegex = /^\d+(?:\.\d*)?$/;
@@ -37,8 +38,8 @@ export function useSwap() {
     }
     if (!positiveNumberRegex.test(amount)) return;
     setAmountIn(amount);
-    const calculatedAmountOut = Number(amount) * fromPrice / toPrice;
-    setAmountOut(formatCurrency(calculatedAmountOut));
+    const calculatedAmountOut = (Number(amount) * fromPrice) / toPrice;
+    setAmountOut(formatNumber(calculatedAmountOut));
   };
 
   const handleChangeToAmount = (amount: string) => {
@@ -49,8 +50,8 @@ export function useSwap() {
     }
     if (!positiveNumberRegex.test(amount)) return;
     setAmountOut(amount);
-    const calculatedAmountIn = Number(amount) * toPrice / fromPrice;
-    setAmountIn(formatCurrency(calculatedAmountIn));
+    const calculatedAmountIn = (Number(amount) * toPrice) / fromPrice;
+    setAmountIn(formatNumber(calculatedAmountIn));
   };
 
   const handleSwapDirection = () => {
@@ -58,7 +59,23 @@ export function useSwap() {
     setTo(from);
     setAmountIn(amountOut);
     setAmountOut(amountIn);
-    
+  };
+
+  // Handle token selection with auto-swap for duplicates
+  const handleFromTokenSelect = (token: string) => {
+    if (token.toUpperCase() === to.toUpperCase()) {
+      // If selecting the same token that's in "to", swap them
+      setTo(from);
+    }
+    setFrom(token);
+  };
+
+  const handleToTokenSelect = (token: string) => {
+    if (token.toUpperCase() === from.toUpperCase()) {
+      // If selecting the same token that's in "from", swap them
+      setFrom(to);
+    }
+    setTo(token);
   };
 
   const quote = useMemo(() => {
@@ -86,7 +103,6 @@ export function useSwap() {
     const minOut = impactAdjustedOut * (1 - settings.slippageBps / 10_000);
     const rate = toPrice / fromPrice;
 
-
     return {
       minOut,
       usdValue,
@@ -111,5 +127,7 @@ export function useSwap() {
     handleChangeFromAmount,
     handleChangeToAmount,
     handleSwapDirection,
+    handleFromTokenSelect,
+    handleToTokenSelect,
   };
 }

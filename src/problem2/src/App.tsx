@@ -1,6 +1,7 @@
 import "./App.css";
-import Swap from "@/components/Swap";
+import Swap from "@/components/Swap/Swap";
 import { Header } from "@/components/Header";
+import { Toaster } from "sonner";
 
 function App() {
   return (
@@ -9,6 +10,7 @@ function App() {
       <main className="py-8">
         <Swap />
       </main>
+      <Toaster position="top-right" richColors />
     </div>
   );
 }
